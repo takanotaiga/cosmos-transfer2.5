@@ -1,0 +1,21 @@
+{
+    "prompt_path": "assets/robot_example/robot_prompt.json",
+    "output_dir": "outputs/robot_multicontrol",
+    "video_path": "assets/robot_example/robot_input.mp4",
+    "guidance": 3,
+    "depth": {
+        "control_path": "assets/robot_example/depth/robot_depth.mp4",
+        "control_weight": 1.0
+    },
+    "edge": {
+        "control_path": "assets/robot_example/edge/robot_edge.mp4",
+        "control_weight": 0.2
+    },
+    "seg": {
+        "control_path": "assets/robot_example/seg/robot_seg.mp4",
+        "control_weight": 1.0
+    },
+    "vis": {
+        "control_weight": 0.5
+    }
+}

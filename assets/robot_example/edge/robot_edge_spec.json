@@ -1,0 +1,10 @@
+{
+    "prompt_path": "assets/robot_example/robot_prompt.json",
+    "output_dir": "outputs/robot_edge",
+    "video_path": "assets/robot_example/robot_input.mp4",
+    "control_weight": 1.0,
+    "guidance": 3,
+    "edge": {
+        "control_path": "assets/robot_example/edge/robot_edge.mp4"
+    }
+}

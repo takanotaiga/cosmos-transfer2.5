@@ -1,0 +1,10 @@
+{
+    "prompt_path": "assets/robot_example/robot_prompt.json",
+    "output_dir": "outputs/robot_seg",
+    "video_path": "assets/robot_example/robot_input.mp4",
+    "control_weight": 1.0,
+    "guidance": 3,
+    "seg": {
+        "control_path": "assets/robot_example/seg/robot_seg.mp4"
+    }
+}
