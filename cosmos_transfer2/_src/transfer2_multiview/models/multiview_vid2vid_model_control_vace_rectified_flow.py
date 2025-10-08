@@ -92,7 +92,12 @@ class MultiviewControlVideo2WorldModelRectifiedFlow(ControlVideo2WorldModelRecti
     def encode(self, state: torch.Tensor) -> torch.Tensor:
         n_views = state.shape[2] // self.tokenizer.get_pixel_num_frames(self.state_t)
         if n_views > 4:
-            return self.encode_cp(state)
+            cp_group = parallel_state.get_context_parallel_group()
+            cp_size = 1
+            if cp_group is not None:
+                cp_size = len(get_process_group_ranks(cp_group))
+            if cp_size >= n_views:
+                return self.encode_cp(state)
         state = rearrange(state, "B C (V T) H W -> (B V) C T H W", V=n_views)
         encoded_state = super().encode(state)
         encoded_state = rearrange(encoded_state, "(B V) C T H W -> B C (V T) H W", V=n_views)
@@ -102,7 +107,12 @@ class MultiviewControlVideo2WorldModelRectifiedFlow(ControlVideo2WorldModelRecti
     def decode(self, latent: torch.Tensor) -> torch.Tensor:
         n_views = latent.shape[2] // self.state_t
         if n_views > 4:
-            return self.decode_cp(latent)
+            cp_group = parallel_state.get_context_parallel_group()
+            cp_size = 1
+            if cp_group is not None:
+                cp_size = len(get_process_group_ranks(cp_group))
+            if cp_size >= n_views:
+                return self.decode_cp(latent)
         latent = rearrange(latent, "B C (V T) H W -> (B V) C T H W", V=n_views)
         decoded_state = super().decode(latent)
         decoded_state = rearrange(decoded_state, "(B V) C T H W -> B C (V T) H W", V=n_views)
