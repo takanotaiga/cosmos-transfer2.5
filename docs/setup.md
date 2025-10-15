@@ -13,7 +13,7 @@
 Clone the repository:
 
 ```bash
-git clone git@github.com:nvidia-cosmos/cosmos-transfer2.5.git
+git clone https://github.com/takanotaiga/cosmos-transfer2.5.git
 cd cosmos-transfer2.5
 ```
 
