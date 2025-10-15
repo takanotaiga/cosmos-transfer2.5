@@ -12,6 +12,8 @@ Cosmos World Foundation Models come in three model types which can all be custom
 
 ## News
 
+* [October 13, 2025] Updated Transfer2.5 Auto Multiview [post-training datasets](https://github.com/nvidia-cosmos/cosmos-transfer2.5/blob/main/docs/post-training_auto_multiview.md), and setup dependencies to support NVIDIA Blackwell.
+  
 * [October 6, 2025] We released [Cosmos-Transfer2.5](https://github.com/nvidia-cosmos/cosmos-transfer2.5) and [Cosmos-Predict2.5](https://github.com/nvidia-cosmos/cosmos-predict2.5) - the next generation of our world simulation models!
 
 * [June 12, 2025] As part of the Cosmos family, we released [Cosmos-Transfer1-DiffusionRenderer](https://github.com/nv-tlabs/cosmos-transfer1-diffusion-renderer)
@@ -34,7 +36,7 @@ Minimizing the need for achieving high fidelity in 3D simulation.
 | --- | --- | --- |
 | <video src="https://github.com/user-attachments/assets/bffc031e-3933-4511-a659-136965931ab0" width="100%" alt="Input video" controls></video> | <video src="https://github.com/user-attachments/assets/8ed4c49c-af26-4318-b95a-32f9cf44d992" width="100%" alt="Control map video" controls></video> | <video src="https://github.com/user-attachments/assets/88f7e63b-efe1-46ff-8174-df2f01462c53" width="100%" alt="Output video" controls></video> |
 
-### Scale World State Diversity  
+### Scale World State Diversity
 
 Leveraging sensor captured RGB or ground truth augmentations.
 
