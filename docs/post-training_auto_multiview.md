@@ -1,29 +1,31 @@
-# Auto Multiview Post-training for HDMap
+# HDMap 向け Auto Multiview ポストトレーニング
 
-This guide provides instructions on running post-training with the Cosmos-Transfer2.5 Auto Multiview 2B model.
+このガイドでは、Cosmos-Transfer2.5 Auto Multiview 2B モデルでポストトレーニングを実行する手順を説明します。
 
-## Table of Contents
+## 目次
 
-- [Prerequisites](#prerequisites)
-- [Preparing Data](#1-preparing-data)
-- [Post-training](#2-post-training)
-- [Inference with the Post-trained checkpoint](#3-inference-with-the-post-trained-checkpoint)
+- [前提条件](#prerequisites)
+- [データ準備](#1-preparing-data)
+- [ポストトレーニング](#2-post-training)
+- [ポストトレーニング後のチェックポイントで推論](#3-inference-with-the-post-trained-checkpoint)
 
-## Prerequisites
+<a id="prerequisites"></a>
+## 前提条件
 
-Before proceeding, please read the [Post-training Guide](./post-training.md) for detailed setup steps and important post-training instructions, including checkpointing and best practices. This will ensure you are fully prepared for post-training with Cosmos-Transfer2.5.
+先へ進む前に、チェックポイントの扱いやベストプラクティスを含む詳細な手順について [ポストトレーニング ガイド](./post-training.md) を必ずお読みください。Cosmos-Transfer2.5 でのポストトレーニングを円滑に行う準備が整います。
 
-## 1. Preparing Data
+<a id="1-preparing-data"></a>
+## 1. データ準備
 
-### 1.1 Prepare Transfer Multiview Training Dataset
+### 1.1 Transfer マルチビュー学習データセットの用意
 
-The first step is preparing a dataset with videos.
+最初のステップは、動画を用意したデータセットの準備です。
 
-You must provide a folder containing a collection of videos in **MP4 format**, preferably 720p, as well as a corresponding folder containing a collection of the hdmap control input videos in  **MP4 format**. The views for each samples should be further stratified by subdirectories with the camera name. We have an example dataset that can be used at `assets/multiview_hdmap_posttrain_dataset`
+各サンプルに対して、できれば 720p の **MP4 形式**の動画群を含むフォルダと、対応する **MP4 形式**の HDMap 制御入力動画群を含むフォルダを用意してください。各サンプルのビューは、カメラ名のサブディレクトリに分けて配置します。`assets/multiview_hdmap_posttrain_dataset` に使用可能なサンプルデータセットがあります。
 
-### 1.2 Verify the dataset folder format
+### 1.2 データセットフォルダ形式の確認
 
-Dataset folder format:
+データセットのフォルダ構成例:
 
 ```
 assets/multiview_hdmap_posttrain_dataset/
@@ -62,21 +64,22 @@ assets/multiview_hdmap_posttrain_dataset/
 │   │   └── *.mp4
 ```
 
-## 2. Post-training
+<a id="2-post-training"></a>
+## 2. ポストトレーニング
 
-Run the following command to execute an example post-training job with multiview data.
+以下のコマンドで、マルチビューデータを用いたポストトレーニングの例を実行します。
 
 ```bash
 torchrun --nproc_per_node=8 --master_port=12341 -m scripts.train --config=cosmos_transfer2/_src/transfer2_multiview/configs/vid2vid_transfer/config.py -- experiment=transfer2_auto_multiview_post_train_example
 ```
 
-The model will be post-trained using the multiview dataset. See the [data config](../projects/cosmos/transfer2_multiview/configs/vid2vid_transfer/defaults/data.py) to understand how the dataloader is defined.
+モデルはマルチビューのデータセットでポストトレーニングされます。データローダーの定義は [データ設定](../projects/cosmos/transfer2_multiview/configs/vid2vid_transfer/defaults/data.py) を参照してください。
 
-Checkpoints are saved to `${IMAGINAIRE_OUTPUT_ROOT}/PROJECT/GROUP/NAME/checkpoints`. By default, `IMAGINAIRE_OUTPUT_ROOT` is `/tmp/imaginaire4-output`. We strongly recommend setting `IMAGINAIRE_OUTPUT_ROOT` to a location with sufficient storage space for your checkpoints.
+チェックポイントは `${IMAGINAIRE_OUTPUT_ROOT}/PROJECT/GROUP/NAME/checkpoints` に保存されます。既定の `IMAGINAIRE_OUTPUT_ROOT` は `/tmp/imaginaire4-output` です。チェックポイントのために十分なストレージ容量のある場所に `IMAGINAIRE_OUTPUT_ROOT` を設定することを強く推奨します。
 
-In the above example, `PROJECT` is `cosmos_transfer_v2p5`, `GROUP` is `auto_multiview`, `NAME` is `2b_cosmos_multiview_post_train_example`.
+上記の例では、`PROJECT` は `cosmos_transfer_v2p5`、`GROUP` は `auto_multiview`、`NAME` は `2b_cosmos_multiview_post_train_example` です。
 
-See the job config to understand how they are determined.
+それらがどのように決定されるかは、ジョブ設定を参照してください。
 
 ```python
 transfer2_auto_multiview_post_train_example = dict(
@@ -92,11 +95,12 @@ transfer2_auto_multiview_post_train_example = dict(
 )
 ```
 
-## 3. Inference with the Post-trained checkpoint
+<a id="3-inference-with-the-post-trained-checkpoint"></a>
+## 3. ポストトレーニング後のチェックポイントで推論
 
-### 3.1 Converting DCP Checkpoint to Consolidated PyTorch Format
+### 3.1 DCP チェックポイントを統合 PyTorch 形式に変換
 
-Since the checkpoints are saved in DCP format during training, you need to convert them to consolidated PyTorch format (.pt) for inference. Use the `convert_distcp_to_pt.py` script:
+学習中に保存されるチェックポイントは DCP 形式のため、推論では統合 PyTorch 形式（.pt）へ変換する必要があります。`convert_distcp_to_pt.py` スクリプトを使用します:
 
 ```bash
 # Get path to the latest checkpoint
@@ -108,21 +112,21 @@ CHECKPOINT_DIR=$CHECKPOINTS_DIR/$CHECKPOINT_ITER
 python scripts/convert_distcp_to_pt.py $CHECKPOINT_DIR/model $CHECKPOINT_DIR
 ```
 
-This conversion will create three files:
+変換により以下の 3 ファイルが生成されます:
 
-- `model.pt`: Full checkpoint containing both regular and EMA weights
-- `model_ema_fp32.pt`: EMA weights only in float32 precision
-- `model_ema_bf16.pt`: EMA weights only in bfloat16 precision (recommended for inference)
+- `model.pt`: 通常重み + EMA 重みを含むフルチェックポイント
+- `model_ema_fp32.pt`: EMA 重み（float32）
+- `model_ema_bf16.pt`: EMA 重み（bfloat16、推論に推奨）
 
-### 3.2 Running Inference
+### 3.2 推論の実行
 
-After converting the checkpoint, you can run inference with your post-trained model using a JSON configuration file that specifies the inference parameters (see `assets/multiview_example/multiview_spec.json` for an example).
+チェックポイントの変換後、推論パラメータを指定した JSON 設定ファイルを用いて、ポストトレーニング済みモデルで推論を実行できます（例: `assets/multiview_example/multiview_spec.json`）。
 
 ```bash
 export NUM_GPUS=8
 torchrun --nproc_per_node=$NUM_GPUS --master_port=12341 -m examples.multiview --params_file assets/multiview_example/multiview_spec.json --num_gpus=$NUM_GPUS --checkpoint_path $CHECKPOINT_DIR/model_ema_bf16.pt --experiment transfer2_auto_multiview_post_train_example
 ```
 
-Generated videos will be saved to the output directory (e.g., `outputs/multiview_control2world/`).
+生成された動画は出力ディレクトリ（例: `outputs/multiview_control2world/`）に保存されます。
 
-For more inference options and advanced usage, see [docs/inference.md](./inference.md).
+推論オプションや高度な使い方の詳細は [docs/inference.md](./inference.md) を参照してください。

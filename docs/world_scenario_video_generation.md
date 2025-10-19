@@ -1,46 +1,46 @@
-# World Scenario Video Generation
+# ワールドシナリオ動画の生成
 
-Generate world scenario videos from 3D scene annotations for use with Cosmos Transfer2.
+Cosmos Transfer2 で使用するため、3D シーンアノテーションからワールドシナリオ動画を生成します。
 
-## Quick Start
+## クイックスタート
 
 ```bash
-# Install dependencies
+# 依存関係をインストール
 cd packages/cosmos-transfer2
 uv sync
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Generate control videos (processes all 7 cameras by default)
+# 制御動画を生成（既定では 7 カメラすべてを処理）
 python scripts/generate_control_videos.py /path/to/{input_root} ./{save_root}
 ```
 
-## Requirements
+## 要件
 
 - Python 3.10+
-- UV (for dependency management)
-- GPU with EGL support (for headless OpenGL rendering)
-- 3D scene annotation data in parquet format
+- UV（依存管理）
+- EGL 対応 GPU（ヘッドレス OpenGL レンダリング用）
+- Parquet 形式の 3D シーンアノテーションデータ
 
-## Usage
+## 使い方
 
-### Basic Commands
+### 基本コマンド
 
 ```bash
-# All cameras (default)
+# 全カメラ（既定）
 python scripts/generate_control_videos.py {input_root}/ {save_root}/
 
-# Specific cameras
+# 特定のカメラのみ
 python scripts/generate_control_videos.py {input_root}/ {save_root}/ \
     --cameras "camera:front:wide:120fov,camera:cross:right:120fov"
 ```
 
-### Options
+### オプション
 
-| Option | Default | Description |
+| オプション | 既定 | 説明 |
 |--------|---------|-------------|
-| `--cameras` | `all` | Camera names or "all" for all 7 cameras |
+| `--cameras` | `all` | カメラ名、または 7 カメラすべてを対象にする場合は "all" |
 
-### Available Cameras
+### 利用可能なカメラ
 
 - `camera:front:wide:120fov`
 - `camera:front:tele:sat:30fov`
@@ -50,9 +50,9 @@ python scripts/generate_control_videos.py {input_root}/ {save_root}/ \
 - `camera:rear:right:70fov`
 - `camera:rear:tele:30fov`
 
-## Data Format
+## データ形式
 
-### Input Structure
+### 入力構成
 ```
 scene_annotations_directory/
 ├── uuid.obstacle.parquet              (required)
@@ -63,7 +63,7 @@ scene_annotations_directory/
 └── ... (other optional parquet files)
 ```
 
-### Output Structure
+### 出力構成
 ```
 save_root/
 └── uuid/
@@ -76,31 +76,31 @@ save_root/
     ├── uuid.camera_rear_tele_30fov.mp4
 ```
 
-## What Gets Rendered
+## レンダリング内容
 
-**Always rendered:** 3D bounding boxes for vehicles/pedestrians (from required `obstacle.parquet`)
+**常にレンダリング:** 車両/歩行者の 3D バウンディングボックス（必須の `obstacle.parquet` から）
 
-**Optionally rendered** (only if corresponding parquet file provided):
-- Lane lines, lanes, road boundaries
-- Crosswalks, poles, road markings, wait lines
-- Traffic lights and signs
+**オプション（対応する parquet ファイルがある場合のみ）:**
+- 車線、レーン、道路境界
+- 横断歩道、ポール、路面標示、停止線
+- 信号機、標識
 
-## Troubleshooting
+## トラブルシューティング
 
-### Common Issues
+### よくある問題
 
-**ModernGL/EGL errors**
-→ Install GPU drivers and EGL libraries (`libGL.so.1`, `libEGL.so.1`). On Ubuntu/Debian: `apt install libegl1-mesa-dev libgl1-mesa-dri`
+**ModernGL/EGL エラー**
+→ GPU ドライバと EGL ライブラリ（`libGL.so.1`, `libEGL.so.1`）をインストール。Ubuntu/Debian の例: `apt install libegl1-mesa-dev libgl1-mesa-dri`
 
-**Missing parquet files**
-→ Ensure required files exist: obstacle, calibration_estimate, egomotion_estimate
+**parquet ファイル不足**
+→ 必須ファイルが存在するか確認: obstacle, calibration_estimate, egomotion_estimate
 
-**Memory issues**
-→ Process fewer cameras at once if needed
+**メモリ問題**
+→ 同時に処理するカメラ数を減らす
 
-**Invalid camera names**
-→ Run with `--help` to see valid options
+**カメラ名が不正**
+→ `--help` で有効なオプションを確認
 
-## Integration
+## 連携
 
-Generated control videos serve as conditioning inputs for Cosmos Transfer2 model inference. The HD map visualizations provide spatial context for video generation tasks.
+生成された制御動画は、Cosmos Transfer2 モデル推論の条件入力として使用できます。HD マップの可視化により、動画生成タスクに空間的コンテキストを提供します。

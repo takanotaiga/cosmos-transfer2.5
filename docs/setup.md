@@ -1,23 +1,23 @@
-# Setup Guide
+# セットアップガイド
 
-## System Requirements
+## システム要件
 
-* NVIDIA GPUs with Ampere architecture (RTX 30 Series, A100) or newer
-* NVIDIA driver >=570.124.06 compatible with [CUDA 12.8.1](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-toolkit-release-notes/index.html#cuda-toolkit-major-component-versions)
+* Ampere 世代以降の NVIDIA GPU（RTX 30 シリーズ、A100 など）
+* [CUDA 12.8.1](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-toolkit-release-notes/index.html#cuda-toolkit-major-component-versions) に対応した NVIDIA ドライバ バージョン >= 570.124.06
 * Linux x86-64
-* glibc>=2.31 (e.g Ubuntu >=22.04)
+* glibc>=2.31（例: Ubuntu >= 22.04）
 * Python 3.10
 
-## Installation
+## インストール
 
-Clone the repository:
+リポジトリをクローンします:
 
 ```bash
 git clone https://github.com/takanotaiga/cosmos-transfer2.5.git
 cd cosmos-transfer2.5
 ```
 
-Install system dependencies:
+システム依存関係をインストールします:
 
 [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
@@ -26,47 +26,47 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 ```
 
-Install the package into a new environment:
+新しい仮想環境にパッケージをインストールします:
 
 ```shell
 uv sync
 source .venv/bin/activate
 ```
 
-Or, install the package into the active environment (e.g. conda):
+あるいは、現在アクティブな環境（例: conda）にインストールします:
 
 ```shell
 uv sync --active --inexact
 ```
 
-To install optional dependencies:
+オプション依存関係も含めてインストールする場合:
 
 ```shell
 uv sync --all-groups
 ```
 
-## Downloading Checkpoints
+## チェックポイントのダウンロード
 
-1. Get a [Hugging Face Access Token](https://huggingface.co/settings/tokens) with `Read` permission
-2. Install [Hugging Face CLI](https://huggingface.co/docs/huggingface_hub/en/guides/cli): `uv tool install -U "huggingface_hub[cli]"`
-3. Login: `hf auth login`
-4. Accept the [NVIDIA Open Model License Agreement](https://huggingface.co/nvidia/Cosmos-Predict2.5-2B).
+1. `Read` 権限を持つ [Hugging Face アクセストークン](https://huggingface.co/settings/tokens) を取得
+2. [Hugging Face CLI](https://huggingface.co/docs/huggingface_hub/en/guides/cli) をインストール: `uv tool install -U "huggingface_hub[cli]"`
+3. ログイン: `hf auth login`
+4. [NVIDIA Open Model License Agreement](https://huggingface.co/nvidia/Cosmos-Predict2.5-2B) に同意
 
-Checkpoints are automatically downloaded during inference and post-training. To modify the checkpoint cache location, set the [`HF_HOME`](https://huggingface.co/docs/huggingface_hub/en/package_reference/environment_variables#hfhome) environment variable.
+推論およびポストトレーニングの実行中に、チェックポイントは自動的にダウンロードされます。キャッシュの保存先を変更する場合は、環境変数 [`HF_HOME`](https://huggingface.co/docs/huggingface_hub/en/package_reference/environment_variables#hfhome) を設定してください。
 
-## Advanced
+## 高度な使用法
 
-### Docker container
+### Docker コンテナ
 
-Please make sure you have access to Docker on your machine and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) is installed. To avoid running out of file descriptors when building the container, increase the limit with `--ulimit nofile` as in the example below. We recommend setting the environment variable `HF_HOME` to a path available to the container so that you do not need to redownload the checkpoints every time you run the container. Finally, it is easy to run out of shared memory for parallel torchrun, so consider setting `--shm-size` high or using `--ipc=host` (if allowed by your security policy) in your docker run command.
+マシンで Docker が利用可能であり、[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) がインストールされていることを確認してください。コンテナのビルド時にファイルディスクリプタ不足を避けるため、以下の例のように `--ulimit nofile` で上限を引き上げてください。毎回チェックポイントを再ダウンロードしないよう、環境変数 `HF_HOME` をコンテナからアクセス可能なパスに設定することを推奨します。最後に、並列実行の `torchrun` では共有メモリが不足しやすいため、`--shm-size` を大きくするか（セキュリティポリシーで許可されていれば）`--ipc=host` の使用を検討してください。
 
-Example build command:
+ビルド例:
 
 ```bash
 docker build --ulimit nofile=131071:131071 -f Dockerfile . -t cosmos-transfer-2.5
 ```
 
-Example run command:
+実行例:
 
 ```bash
 docker run --gpus all --rm -v .:/workspace -v /workspace/.venv -v ${HF_HOME:-$HOME/.cache/huggingface}:/root/.cache/huggingface -e HF_HOME=/root/.cache/huggingface -it --ipc=host cosmos-transfer-2.5

@@ -1,55 +1,55 @@
-# Post-Training Guide
+# ポストトレーニング ガイド
 
-## Prerequisites
+## 前提条件
 
-### 1. Environment Setup
+### 1. 環境セットアップ
 
-Follow the [Setup guide](./setup.md) for general environment setup instructions, including installing dependencies.
+[セットアップガイド](./setup.md) に従い、依存関係のインストールを含む基本的な環境構築を行ってください。
 
-### 2. Hugging Face Configuration
+### 2. Hugging Face の設定
 
-Model checkpoints are automatically downloaded during post-training if they are not present. Configure Hugging Face as follows:
+モデルのチェックポイントが存在しない場合、ポストトレーニング中に自動でダウンロードされます。以下のように Hugging Face を設定してください:
 
 ```bash
-# Login with your Hugging Face token (required for downloading models)
+# Hugging Face トークンでログイン（モデルのダウンロードに必須）
 hf auth login
 
-# Set custom cache directory for HF models
-# Default: ~/.cache/huggingface
+# HF モデルのカスタムキャッシュディレクトリを設定
+# 既定: ~/.cache/huggingface
 export HF_HOME=/path/to/your/hf/cache
 ```
 
-> **💡 Tip**: Ensure you have sufficient disk space in `HF_HOME`.
+> **💡 ヒント**: `HF_HOME` に十分なディスク容量があることを確認してください。
 
-### 3. Training Output Directory
+### 3. 学習出力ディレクトリ
 
-Configure where training checkpoints and artifacts will be saved:
+学習のチェックポイントと成果物の保存先を設定します:
 
 ```bash
-# Set output directory for training checkpoints and artifacts
-# Default: /tmp/imaginaire4-output
+# 学習チェックポイント・成果物の出力先を設定
+# 既定: /tmp/imaginaire4-output
 export IMAGINAIRE_OUTPUT_ROOT=/path/to/your/output/directory
 ```
 
-> **💡 Tip**: Ensure you have sufficient disk space in `IMAGINAIRE_OUTPUT_ROOT`.
+> **💡 ヒント**: `IMAGINAIRE_OUTPUT_ROOT` に十分なディスク容量があることを確認してください。
 
-## Weights & Biases (W&B) Logging
+## Weights & Biases (W&B) へのロギング
 
-By default, training will attempt to log metrics to Weights & Biases. You have several options:
+既定では、学習は Weights & Biases にメトリクスを記録しようとします。以下の選択肢があります。
 
-### Option 1: Enable W&B
+### オプション 1: W&B を有効化
 
-To enable full experiment tracking with W&B:
+W&B を用いた実験トラッキングを有効にするには:
 
-1. Create a free account at [wandb.ai](https://wandb.ai)
-2. Get your API key from [https://wandb.ai/authorize](https://wandb.ai/authorize)
-3. Set the environment variable:
+1. [wandb.ai](https://wandb.ai) で無料アカウントを作成
+2. [https://wandb.ai/authorize](https://wandb.ai/authorize) から API キーを取得
+3. 以下の環境変数を設定:
 
     ```bash
     export WANDB_API_KEY=your_api_key_here
     ```
 
-4. Launch training with the following command:
+4. 次のコマンドで学習を開始します:
 
     ```bash
     EXP=your_experiment_name_here
@@ -59,9 +59,9 @@ To enable full experiment tracking with W&B:
       experiment=${EXP}
     ```
 
-### Option 2: Disable W&B
+### オプション 2: W&B を無効化
 
-Add `job.wandb_mode=disabled` to your training command to disable wandb logging:
+学習コマンドに `job.wandb_mode=disabled` を追加すると、W&B へのログ送信を無効化できます:
 
 ```bash
 EXP=your_experiment_name_here
@@ -72,22 +72,22 @@ torchrun --nproc_per_node=8 --master_port=12341 -m scripts.train \
   job.wandb_mode=disabled
 ```
 
-## Checkpointing
+## チェックポイント管理
 
-Training uses two checkpoint formats, each optimized for different use cases:
+本学習では 2 種類のチェックポイント形式を使用します。用途に応じて最適化されています。
 
-### 1. Distributed Checkpoint (DCP) Format
+### 1. 分散チェックポイント（DCP）形式
 
-**Primary format for training checkpoints.**
+**学習時の主要チェックポイント形式** です。
 
-- **Structure**: Multi-file directory with sharded model weights
-- **Used for**: Saving checkpoints during training, resuming training
-- **Advantages**:
-  - Efficient parallel I/O for multi-GPU training
-  - Supports FSDP (Fully Sharded Data Parallel)
-  - Optimized for distributed workloads
+- **構成**: モデル重みがシャーディングされた複数ファイルのディレクトリ
+- **用途**: 学習中の保存、学習の再開
+- **利点**:
+  - マルチ GPU 学習における効率的な並列 I/O
+  - FSDP（Fully Sharded Data Parallel）対応
+  - 分散ワークロード向けに最適化
 
-**Example directory structure:**
+**ディレクトリ構成例:**
 
 ```
 checkpoints/
@@ -101,44 +101,44 @@ checkpoints/
 └── latest_checkpoint.txt
 ```
 
-### 2. Consolidated PyTorch (.pt) Format
+### 2. 統合 PyTorch（.pt）形式
 
-**Single-file format for inference and distribution.**
+**推論や配布に適した単一ファイル形式** です。
 
-- **Structure**: Single `.pt` file containing the complete model state
-- **Used for**: Inference, model sharing, initial post-training
-- **Advantages**:
-  - Easy to distribute and version control
-  - Standard PyTorch format
-  - Simpler for single-GPU workflows
+- **構成**: モデルの完全な状態を含む単一の `.pt` ファイル
+- **用途**: 推論、モデル共有、初回ポストトレーニングの開始
+- **利点**:
+  - 配布・バージョン管理が容易
+  - 標準的な PyTorch 形式
+  - 単一 GPU ワークフローで簡便
 
-### Loading Checkpoints
+### チェックポイントの読み込み
 
-The training system **supports loading from both formats**:
+学習システムは **両形式からの読み込みに対応** しています。
 
-**Load DCP checkpoint (for resuming training):**
+**DCP チェックポイントの読み込み（学習再開用）:**
 
 ```python
 load_path="checkpoints/nvidia/Cosmos-Transfer2.5-2B/dcp"
 ```
 
-**Load consolidated checkpoint (for starting post-training):**
+**統合チェックポイントの読み込み（ポストトレーニング開始用）:**
 
 ```python
 load_path="checkpoints/nvidia/Cosmos-Transfer2.5-2B/consolidated/model.pt"
 ```
 
-> **Note**: When you download pretrained models from Hugging Face, they are typically in consolidated `.pt` format. The training system will automatically load this format and begin training.
+> **注意**: Hugging Face からダウンロードした事前学習モデルは通常、統合 `.pt` 形式です。学習システムは自動的にこの形式を読み込み、学習を開始します。
 
-### Saving Checkpoints
+### チェックポイントの保存
 
-**All checkpoints saved during training use DCP format**. This ensures:
+**学習中に保存されるチェックポイントはすべて DCP 形式です。** これにより次が保証されます:
 
-- Consistent checkpoint structure across training runs
-- Optimal performance for distributed training
+- 学習実行間で一貫したチェックポイント構造
+- 分散学習での最適な性能
 
-## Post-training Examples
+## ポストトレーニングの例
 
-For detailed training examples and configuration options, see:
+詳細な学習例や設定オプションは以下を参照してください:
 
-- [Control2World Post-Training for HDMap Multiview](./world_scenario_video_generation.md)
+- [HDMap マルチビュー向け Control2World ポストトレーニング](./world_scenario_video_generation.md)
