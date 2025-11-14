@@ -47,7 +47,6 @@ CUDA variants:
 
 * `--extra=cu128`: CUDA 12.8 + PyTorch 2.7
 * `--extra=cu129`: CUDA 12.9 + PyTorch 2.8
-* `--extra=cu130`: CUDA 13.0 + PyTorch 2.9
 
 ## Downloading Checkpoints
 
