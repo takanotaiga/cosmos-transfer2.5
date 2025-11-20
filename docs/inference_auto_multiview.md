@@ -4,7 +4,7 @@
 
 1. Follow the [Setup guide](setup.md) for environment setup, checkpoint download and hardware requirements.
 
-## GPU Requirements
+## (Exploratory) Using Less GPUs
 
 The number of GPUs (context parallel size) must be **greater than or equal to the number of active views** in your spec.  
 An active view is any camera entry that supplies a `control_path` (e.g., `front_wide`, `rear_left`, etc.).  
@@ -13,6 +13,8 @@ If you reduce the views in your JSON spec, you can run on fewer GPUs.
 Adjust `--nproc_per_node` (or total world size) accordingly before running the commands below.
 
 ## Examples
+
+Multiview requires 8 GPUs
 
 Run multiview2world:
 
