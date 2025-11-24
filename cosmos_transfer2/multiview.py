@@ -35,7 +35,11 @@ from cosmos_transfer2._src.predict2_multiview.configs.vid2vid.defaults.condition
 from cosmos_transfer2._src.predict2_multiview.datasets.local import LocalMultiViewDataset
 from cosmos_transfer2._src.predict2_multiview.datasets.multiview import AugmentationConfig
 from cosmos_transfer2._src.transfer2_multiview.inference.inference import ControlVideo2WorldInference
-from cosmos_transfer2.multiview_config import MultiviewInferenceArguments, MultiviewSetupArguments, MULTIVIEW_CAMERA_KEYS
+from cosmos_transfer2.multiview_config import (
+    MULTIVIEW_CAMERA_KEYS,
+    MultiviewInferenceArguments,
+    MultiviewSetupArguments,
+)
 
 RESOLUTIONS: Mapping = {
     "720p": (720, 1280),
