@@ -23,6 +23,9 @@ Run multiview2world:
 torchrun --nproc_per_node=8 --master_port=12341 examples/multiview.py -i assets/multiview_example/multiview_spec.json -o outputs/multiview/
 ```
 
+By default, the output is a single concatenated video containing all views side-by-side. Set `"save_combined_views": false` in the params JSON to instead save individual MP4 files for each camera view, plus a 3x3 tiled grid video combining all views.
+
+
 For an explanation of all the available parameters run:
 ```bash
 python examples/multiview.py --help
